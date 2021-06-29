@@ -1,0 +1,7 @@
+__pycache__
+.vs
+*.sln
+*.pyproj
+*.pyproj.user
+*.bat
+*.editorconfig
