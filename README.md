@@ -5,7 +5,7 @@ This project can be used as independent preprocessing code for classifying peopl
 ### Run instructions:
 1) Go to suitable directory 
 2) $git clone https://github.com/Tswagerman/MLproject.git
-3) $cd MLproject
+3) $cd tensorflow_Parkinsons
 4) Modules required: tensorflow
 5) $python main.py
 
