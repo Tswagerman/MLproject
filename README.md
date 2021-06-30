@@ -1,6 +1,6 @@
 ### Description:
 feedforward (back-propagation) neural network
-This project can be used as independent preprocessing code for classifying people suffering from Parkinson's disease from healthy people based on speech signals from voice recordings. See reference 3. Using Keras preprocessing layers from the Tensorflow library.
+TThis project can be used to classify people into two categories; People suffering from Parkinson's disease and people who are not. This is based on speech signals from voice recordings. See reference 4. Keras preprocessing layers from the Tensorflow library were used to accomplish this.
 
 ### Run instructions:
 1) Go to suitable directory 
