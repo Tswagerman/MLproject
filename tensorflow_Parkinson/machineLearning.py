@@ -14,20 +14,23 @@ class model:
     def __createModel(self, parkinson_training_features, parkinson_training_labels):
         features_shape = parkinson_training_features.shape[1:]
         label_variability = 2 #Either healthy or not
+        num_of_attributes = 11
         #Create a normalization layer and set its internal state using the training data
         #Normalization: holds the mean and standard deviation of the features
         normalizer = preprocessing.Normalization()
         normalizer.adapt(parkinson_training_features) #exposing the preprocessing layer to training data, setting its state.
 
-        #Create model layers
+        #Create model 
         input = keras.Input(shape=features_shape)
         features = normalizer(input)
-        output = layers.Dense(label_variability, activation="softmax")(features)
+        hidden_1 = layers.Dense(num_of_attributes, activation="sigmoid")(features)
+        hidden_2 = layers.Dense(num_of_attributes, activation="sigmoid")(hidden_1)
+        output = layers.Dense(num_of_attributes, activation="softmax")(hidden_2)
         model = keras.Model(input, output)
 
         #Train model
         model.compile(optimizer="rmsprop", loss="sparse_categorical_crossentropy")
-        model.fit(parkinson_training_features, parkinson_training_labels, epochs=100)
+        model.fit(parkinson_training_features, parkinson_training_labels, epochs=1000)
 
         self.__make_predictions(model, parkinson_training_features, parkinson_training_labels, "Training Data")
         return model
