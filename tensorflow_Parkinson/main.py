@@ -33,7 +33,7 @@ def createDatasets(dataLocation):
                                                         "Shimmer:APQ5","MDVP:APQ","Shimmer:DDA","NHR","HNR","status","RPDE","DFA","spread1",
                                                         "spread2","D2","PPE"], skiprows=[0]) #Skipping first row in csv file
     parkinson_data_clean = cleanData(parkinson_dataset)
-    print("parkinson_data_clean = ", parkinson_data_clean)
+    #print("parkinson_data_clean = ", parkinson_data_clean)
     #The aim was to divide the training and testing data 80/20.
     #In order to divide the test and train sets in between subjects,
     #the percentage had to be quite precise. This resulted in an arbitrary 0.785 percent of the data.
@@ -54,5 +54,6 @@ if __name__ == "__main__":
     cwd = os.getcwd()
     dataLocation = cwd + '\data\parkinson.csv'
     createDatasets(dataLocation)
+    #print("parkinson_training_features = ", parkinson_training_features.shape)
     model(parkinson_training_features, parkinson_training_labels, parkinson_testing_features, parkinson_testing_labels)
     
