@@ -5,17 +5,17 @@ import os
 from machineLearning import model 
 
 #Global tuples
-parkinson_training_features = ([])
-parkinson_training_labels = ([])
-parkinson_testing_features = ([])
-parkinson_testing_labels = ([])
+parkinson_training_features = ()
+parkinson_training_labels = ()
+parkinson_testing_features = ()
+parkinson_testing_labels = ()
 
 def cleanData(parkinson_dataset):
     #The string variable 'name' will cause errors when converting to np.array. 
     #Also, it is not relevant in order to predict whether an individual has parkinson's disease.
     parkinson_dataset.drop("name", inplace=True, axis=1) 
     #The other variables are dropped, because they do not show a correlation with Parkinson's disease
-    #Based on work done shown in reference 3. (see README)
+    #Based on work done by Little et al., see first two references in README.
     trash_variables = ["MDVP:Fo(Hz)", "MDVP:Fhi(Hz)", "MDVP:Flo(Hz)", "MDVP:Jitter(%)", 
                         "MDVP:RAP", "MDVP:PPQ", "MDVP:Shimmer", "MDVP:Shimmer(dB)",
                         "Shimmer:APQ3", "Shimmer:APQ5", "spread1", "spread2"]
@@ -33,11 +33,8 @@ def createDatasets(dataLocation):
                                                         "Shimmer:APQ5","MDVP:APQ","Shimmer:DDA","NHR","HNR","status","RPDE","DFA","spread1",
                                                         "spread2","D2","PPE"], skiprows=[0]) #Skipping first row in csv file
     parkinson_data_clean = cleanData(parkinson_dataset)
-    #print("parkinson_data_clean = ", parkinson_data_clean)
-    #The aim was to divide the training and testing data 80/20.
-    #In order to divide the test and train sets in between subjects,
-    #the percentage had to be quite precise. This resulted in an arbitrary 0.785 percent of the data.
-    parkinson_training_dataset = takeSampleRows(parkinson_data_clean, 0.785) 
+    #Relative small test data, because afraid of overfitting
+    parkinson_training_dataset = takeSampleRows(parkinson_data_clean, 0.55) 
     parkinson_training_features = parkinson_training_dataset.copy()
     parkinson_training_labels = parkinson_training_features.pop('status') #Health status of the subject (one) - Parkinson's, (zero) - healthy
     parkinson_training_features = np.array(parkinson_training_features)
