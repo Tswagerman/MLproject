@@ -8,29 +8,31 @@ from tensorflow.keras.layers.experimental import preprocessing
 class model:
     def __init__(self, parkinson_training_features, parkinson_training_labels, parkinson_testing_features, parkinson_testing_labels):  
         self.predictionArray = []
-        self.epochs = 500 #500
-        self.LR = 0.4 #0.15 Learning rate
-        self.DR = 0.9 #Decay rate
-        self.modelRuns = 15 #3
-        self.batchSize = 55 #130
-        predictArray = self.__modelRuns(self.modelRuns, parkinson_training_features, parkinson_training_labels, parkinson_testing_features, parkinson_testing_labels)
-        #The average testing data is used to validate the accuracy of the model.
-        self.__calc_accuracy(predictArray, parkinson_testing_labels, "Testing Data ")
-
+        #Tuning parameters
+        self.epochs = 500 #500 Epoch: one forward pass and one backward pass of all the training examples
+        self.LR = 0.45 #0.4 Learning rate
+        self.DS = 50 #500 Decay steps
+        self.DR = 0.95 #0.9 Decay rate
+        self.modelRuns = 1000 #15 Number of models being used to form the committee machine
+        self.batchSize = 55 #55 Batch size: number of training examples in one epoch      
+        self.__modelRuns(self.modelRuns, parkinson_training_features, parkinson_training_labels, parkinson_testing_features, parkinson_testing_labels)
+       
     def __modelRuns(self, noModels, parkinson_training_features, parkinson_training_labels, parkinson_testing_features, parkinson_testing_labels):
         #Averaging over a number of models. Committee machine
         for modelnr in range(noModels):
             #The model is created based on the training dataset.
-            model = self.__createModel(parkinson_training_features, parkinson_training_labels)
-            new_predictionArray = self.__make_predictions(model, parkinson_testing_features, parkinson_testing_labels)
-            #print("new_predictionArray = ", new_predictionArray)
+            model = self.__createAndTrainModel(parkinson_training_features, parkinson_training_labels)
+            #Make predictions of the testing data using the model
+            new_predictionArray = model(parkinson_testing_features)
             self.predictionArray.append(new_predictionArray)
+            predictArray = np.asarray(new_predictionArray) 
+            self.__calcAccuracy(predictArray, parkinson_testing_labels, "Mid-run testing")
         tupleArray = tuple(map(mean, zip(*self.predictionArray)))
         predictArray = np.asarray(tupleArray) 
-        #print("predictArray = ", predictArray)
-        return predictArray
+        #The average testing data is used to validate the accuracy of the model.
+        self.__calcAccuracy(predictArray, parkinson_testing_labels, "Testing Data ")
 
-    def __createModel(self, parkinson_training_features, parkinson_training_labels):
+    def __createAndTrainModel(self, parkinson_training_features, parkinson_training_labels):
         features_shape = parkinson_training_features.shape[1:]
         #Create a normalization layer and set its internal state using the training data
         #Normalization: holds the mean and standard deviation of the features
@@ -48,39 +50,33 @@ class model:
         output_tensor_3 = output_layer(output_tensor_2)
         model = keras.Model(input, output_tensor_3)
 
+        #Train model
+        #ExponentialDecay = initial_learning_rate * decay_rate ^ (step / decay_steps)
         lr_schedule = keras.optimizers.schedules.ExponentialDecay(
             initial_learning_rate=self.LR,
-            decay_steps=500,
+            decay_steps=self.DS,
             decay_rate=self.DR)
         opt = keras.optimizers.Adam(learning_rate=lr_schedule)
-        #Train model
         #Binary classification, hence binary crossentropy
         model.compile(optimizer=opt, loss='binary_crossentropy') # metrics=['MeanSquaredError', 'accuracy', 'AUC']
         model.summary()
-        #Epoch: one forward pass and one backward pass of all the training examples
-        #Batch size: number of training examples in one epoch
         model.fit(parkinson_training_features, parkinson_training_labels, batch_size=self.batchSize, epochs=self.epochs, verbose = 0) 
         
-        training_prediction = self.__make_predictions(model, parkinson_training_features, parkinson_training_labels)
+        #See how well the training data is being predicted
+        training_prediction = model(parkinson_training_features)
         predictionArray = np.asarray(training_prediction)
-        self.__calc_accuracy(predictionArray, parkinson_training_labels, "Training Data")
+        self.__calcAccuracy(predictionArray, parkinson_training_labels, "Training Data")
         return model
-
-    def __make_predictions(self, model, parkinson_features, parkinson_labels):
-        predictions = model(parkinson_features)
-        return predictions
         
-    def __calc_accuracy(self, predictionArray, labelArray, string):
+    def __calcAccuracy(self, predictionArray, labelArray, string):
         print("\n############   ", string, "  ############")
-        #print("Prediction before rounding = ", predictionArray)
-        predictionArrayRounded = np.round(predictionArray,0)
+        predictionArrayRounded = np.round(predictionArray, 0)
         accuracy_counter = 0
-        #print("PREDICTION ARRAY OF HEALTH STATUS:\n", predictionArrayRounded)
-        #print("ACTUAL HEALTH STATUS\n", labelArray)
         for iteration in range(labelArray.size):
-            if (predictionArrayRounded[iteration] == labelArray[iteration]):
+            if (predictionArrayRounded[iteration] == labelArray[iteration]): #Prediction correct
                 accuracy_counter += 1
-            else:
-                print("iteration = ", iteration, " prediction: ", predictionArrayRounded[iteration], " Label: ", labelArray[iteration], "PreRounding:", predictionArray[iteration])
+            else: #Prediction incorrect
+                pass
+                #print("iteration = ", iteration, " prediction: ", predictionArrayRounded[iteration], " Label: ", labelArray[iteration], "PreRounding:", predictionArray[iteration])
         accuracy = (accuracy_counter / labelArray.size) * 100 
         print("############ Accuracy =", "{:.2f}".format(accuracy), "% ###########")
