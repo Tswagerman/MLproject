@@ -10,10 +10,10 @@ class model:
         self.predictionArray = []
         #Tuning parameters
         self.epochs = 500 #500 Epoch: one forward pass and one backward pass of all the training examples
-        self.LR = 0.45 #0.4 Learning rate
+        self.LR = 0.4 #0.4 Learning rate
         self.DS = 50 #500 Decay steps
-        self.DR = 0.95 #0.9 Decay rate
-        self.modelRuns = 1000 #15 Number of models being used to form the committee machine
+        self.DR = 0.96 #0.9 Decay rate
+        self.modelRuns = 15 #15 Number of models being used to form the committee machine
         self.batchSize = 55 #55 Batch size: number of training examples in one epoch      
         self.__modelRuns(self.modelRuns, parkinson_training_features, parkinson_training_labels, parkinson_testing_features, parkinson_testing_labels)
        
