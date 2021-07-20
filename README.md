@@ -1,7 +1,7 @@
 ### Description:
 This project can be used to classify people into two categories; People suffering from Parkinson's disease and people who are not. This is based on speech signals from voice recordings. See reference 4. Keras preprocessing layers from the Tensorflow library were used to accomplish this.
 
-Feed-forward multilayer perceptron with sigmoid activation function trained by backpropagation algorithm. There are two hidden layers with eleven neurons.
+Feed-forward multilayer perceptron with sigmoid activation function trained by backpropagation algorithm. There are two hidden layers with ten neurons.
 The two  hidden  layer are feed  forward, back propagation artificial neural networks.
 
 ### Run instructions:
