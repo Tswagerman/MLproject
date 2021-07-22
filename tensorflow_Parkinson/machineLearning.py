@@ -15,15 +15,15 @@ class model:
         self.prediction_array = []
         self.number_models_saved = 0
         #Boolean to use '.hdf5' models that are stored in 'cwd\models'
-        self.use_saved_models = True
+        self.use_saved_models = self.__yesOrNo()
         #Tuning parameters
         #ExponentialDecay = initial_learning_rate * decay_rate ^ (step / decay_steps)
-        self.epochs = 500   #500  | Epoch: one forward pass and one backward pass of all the training examples
-        self.LR = 0.4      #0.45 | Learning rate
-        self.DS = 100        #50  | Decay steps
-        self.DR = 0.96       #0.98 | Decay rate
+        self.epochs = 500     #500  | Epoch: one forward pass and one backward pass of all the training examples
+        self.LR = 0.4         #0.45 | Learning rate
+        self.DS = 100         #50   | Decay steps
+        self.DR = 0.96        #0.98 | Decay rate
         self.model_runs = 15  #15   | Number of models being used to form the committee machine
-        self.batch_size = 300 #55  | Batch size: number of training examples in one epoch      
+        self.batch_size = 300 #55   | Batch size: number of training examples in one epoch      
         self.__modelRuns(parkinson_training_features, parkinson_training_labels, parkinson_testing_features, parkinson_testing_labels)
        
     def __modelRuns(self, parkinson_training_features, parkinson_training_labels, parkinson_testing_features, parkinson_testing_labels):
@@ -32,10 +32,11 @@ class model:
         self.__nrModelsSaved()
         #Averaging over a number of models. Committee machine
         for modelnr in range(self.model_runs): 
-            #The model is created based on the training dataset.
             if (self.use_saved_models == True):
+                #Pre-stored models
                 model = self.__loadModel(modelnr)
             else:
+                #The model is created based on the training dataset.
                 model = self.__createAndTrainModel(parkinson_training_features, parkinson_training_labels)
             #Make predictions of the testing data using the model
             new_prediction_array = model(parkinson_testing_features)
@@ -113,3 +114,11 @@ class model:
         filename = "model\m%s.hdf5" % number
         model = load_model(filename)
         return model
+
+    def __yesOrNo(self):
+        while True:
+            reply = str(input('Do you want to use saved models? (y/n): ')).lower().strip()
+            if reply[:1] == 'y':
+                return True
+            if reply[:1] == 'n':
+                return False
